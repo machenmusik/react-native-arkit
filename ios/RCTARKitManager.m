@@ -43,6 +43,9 @@ RCT_EXPORT_METHOD(getCameraPosition:(RCTPromiseResolveBlock)resolve reject:(RCTP
     resolve([[ARKit sharedInstance] readCameraPosition]);
 }
 
+RCT_EXPORT_METHOD(getCameraProjectionMatrix:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    resolve([[ARKit sharedInstance] readCameraProjectionMatrix]);
+}
 
 RCT_EXPORT_METHOD(addBox:(NSDictionary *)property) {
     [[ARKit sharedInstance] addBox:property];

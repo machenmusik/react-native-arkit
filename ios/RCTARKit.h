@@ -46,6 +46,7 @@
 - (void)snapshot:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 
 - (NSDictionary *)readCameraPosition;
+- (NSDictionary *)readCameraProjectionMatrix;
 
 
 #pragma mark add

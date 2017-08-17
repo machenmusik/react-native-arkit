@@ -140,6 +140,27 @@
              };
 }
 
+- (NSDictionary *)readCameraProjectionMatrix {
+    return @{
+             @"c0r0": @(self.session.currentFrame.camera.projectionMatrix.columns[0][0]),
+             @"c0r1": @(self.session.currentFrame.camera.projectionMatrix.columns[0][1]),
+             @"c0r2": @(self.session.currentFrame.camera.projectionMatrix.columns[0][2]),
+             @"c0r3": @(self.session.currentFrame.camera.projectionMatrix.columns[0][3]),
+             @"c1r0": @(self.session.currentFrame.camera.projectionMatrix.columns[1][0]),
+             @"c1r1": @(self.session.currentFrame.camera.projectionMatrix.columns[1][1]),
+             @"c1r2": @(self.session.currentFrame.camera.projectionMatrix.columns[1][2]),
+             @"c1r3": @(self.session.currentFrame.camera.projectionMatrix.columns[1][3]),
+             @"c2r0": @(self.session.currentFrame.camera.projectionMatrix.columns[2][0]),
+             @"c2r1": @(self.session.currentFrame.camera.projectionMatrix.columns[2][1]),
+             @"c2r2": @(self.session.currentFrame.camera.projectionMatrix.columns[2][2]),
+             @"c2r3": @(self.session.currentFrame.camera.projectionMatrix.columns[2][3]),
+             @"c3r0": @(self.session.currentFrame.camera.projectionMatrix.columns[3][0]),
+             @"c3r1": @(self.session.currentFrame.camera.projectionMatrix.columns[3][1]),
+             @"c3r2": @(self.session.currentFrame.camera.projectionMatrix.columns[3][2]),
+             @"c3r3": @(self.session.currentFrame.camera.projectionMatrix.columns[3][3])
+             };
+}
+
 
 
 #pragma mark - Lazy loads
