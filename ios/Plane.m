@@ -22,9 +22,12 @@
     self.planeGeometry = [SCNBox boxWithWidth:width height:planeHeight length:length chamferRadius:0];
 
     SCNMaterial *material = [SCNMaterial new];
+/*
     UIImage *img = [UIImage imageNamed:@"tron_grid.png"];
 
     material.diffuse.contents = img;
+*/
+    material.diffuse.contents = [UIColor colorWithWhite:1.0 alpha:0.2];
 
     SCNMaterial *transparentMaterial = [SCNMaterial new];
     transparentMaterial.diffuse.contents = [UIColor colorWithWhite:1.0 alpha:0.0];
