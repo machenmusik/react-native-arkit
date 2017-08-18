@@ -136,7 +136,10 @@
     return @{
              @"x": @(self.cameraOrigin.position.x),
              @"y": @(self.cameraOrigin.position.y),
-             @"z": @(self.cameraOrigin.position.z)
+             @"z": @(self.cameraOrigin.position.z),
+             @"eulerX": @(self.session.currentFrame.camera.eulerAngles[0]),
+             @"eulerY": @(self.session.currentFrame.camera.eulerAngles[1]),
+             @"eulerZ": @(self.session.currentFrame.camera.eulerAngles[2])
              };
 }
 
