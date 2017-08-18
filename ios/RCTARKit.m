@@ -474,7 +474,7 @@
                                });
     }
     
-    Plane *plane = [[Plane alloc] initWithAnchor: (ARPlaneAnchor *)anchor isHidden: NO];
+    Plane *plane = [[Plane alloc] initWithAnchor: (ARPlaneAnchor *)anchor isHidden: self.debug ? NO : YES];
     [self.planes setObject:plane forKey:anchor.identifier];
     [node addChildNode:plane];
 }
