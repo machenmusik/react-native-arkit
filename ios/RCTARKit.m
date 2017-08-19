@@ -134,6 +134,8 @@
 
 - (NSDictionary *)readCameraPosition {
     return @{
+             // Is passing array(s) better?
+             // Is it better to send over current frame camera.transform?
              @"x": @(self.cameraOrigin.position.x),
              @"y": @(self.cameraOrigin.position.y),
              @"z": @(self.cameraOrigin.position.z),
@@ -143,24 +145,28 @@
              };
 }
 
-- (NSDictionary *)readCameraProjectionMatrix {
+- (NSDictionary *)readCurrentFrameParams {
+    ARFrame* currentFrame = self.session.currentFrame;
+    ARCamera* camera = currentFrame.camera;
     return @{
-             @"c0r0": @(self.session.currentFrame.camera.projectionMatrix.columns[0][0]),
-             @"c0r1": @(self.session.currentFrame.camera.projectionMatrix.columns[0][1]),
-             @"c0r2": @(self.session.currentFrame.camera.projectionMatrix.columns[0][2]),
-             @"c0r3": @(self.session.currentFrame.camera.projectionMatrix.columns[0][3]),
-             @"c1r0": @(self.session.currentFrame.camera.projectionMatrix.columns[1][0]),
-             @"c1r1": @(self.session.currentFrame.camera.projectionMatrix.columns[1][1]),
-             @"c1r2": @(self.session.currentFrame.camera.projectionMatrix.columns[1][2]),
-             @"c1r3": @(self.session.currentFrame.camera.projectionMatrix.columns[1][3]),
-             @"c2r0": @(self.session.currentFrame.camera.projectionMatrix.columns[2][0]),
-             @"c2r1": @(self.session.currentFrame.camera.projectionMatrix.columns[2][1]),
-             @"c2r2": @(self.session.currentFrame.camera.projectionMatrix.columns[2][2]),
-             @"c2r3": @(self.session.currentFrame.camera.projectionMatrix.columns[2][3]),
-             @"c3r0": @(self.session.currentFrame.camera.projectionMatrix.columns[3][0]),
-             @"c3r1": @(self.session.currentFrame.camera.projectionMatrix.columns[3][1]),
-             @"c3r2": @(self.session.currentFrame.camera.projectionMatrix.columns[3][2]),
-             @"c3r3": @(self.session.currentFrame.camera.projectionMatrix.columns[3][3])
+             @"projectionMatrix": @[
+              @(camera.projectionMatrix.columns[0][0]),
+              @(camera.projectionMatrix.columns[0][1]),
+              @(camera.projectionMatrix.columns[0][2]),
+              @(camera.projectionMatrix.columns[0][3]),
+              @(camera.projectionMatrix.columns[1][0]),
+              @(camera.projectionMatrix.columns[1][1]),
+              @(camera.projectionMatrix.columns[1][2]),
+              @(camera.projectionMatrix.columns[1][3]),
+              @(camera.projectionMatrix.columns[2][0]),
+              @(camera.projectionMatrix.columns[2][1]),
+              @(camera.projectionMatrix.columns[2][2]),
+              @(camera.projectionMatrix.columns[2][3]),
+              @(camera.projectionMatrix.columns[3][0]),
+              @(camera.projectionMatrix.columns[3][1]),
+              @(camera.projectionMatrix.columns[3][2]),
+              @(camera.projectionMatrix.columns[3][3])
+              ]
              };
 }
 
@@ -471,7 +477,25 @@
                                @"quaternion": @{ @"x": @(node.rotation.x), @"y": @(node.rotation.y), @"z": @(node.rotation.z), @"w": @(node.rotation.w) },
                                @"center": @{ @"x": @(planeAnchor.center.x), @"y": @(planeAnchor.center.y), @"z": @(planeAnchor.center.z) },
                                @"extent": @{ @"x": @(planeAnchor.extent.x), @"y": @(planeAnchor.extent.y), @"z": @(planeAnchor.extent.z) },
-                               @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) }
+                               @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) },
+                               @"transform": @[
+                                   @(planeAnchor.transform.columns[0][0]),
+                                   @(planeAnchor.transform.columns[0][1]),
+                                   @(planeAnchor.transform.columns[0][2]),
+                                   @(planeAnchor.transform.columns[0][3]),
+                                   @(planeAnchor.transform.columns[1][0]),
+                                   @(planeAnchor.transform.columns[1][1]),
+                                   @(planeAnchor.transform.columns[1][2]),
+                                   @(planeAnchor.transform.columns[1][3]),
+                                   @(planeAnchor.transform.columns[2][0]),
+                                   @(planeAnchor.transform.columns[2][1]),
+                                   @(planeAnchor.transform.columns[2][2]),
+                                   @(planeAnchor.transform.columns[2][3]),
+                                   @(planeAnchor.transform.columns[3][0]),
+                                   @(planeAnchor.transform.columns[3][1]),
+                                   @(planeAnchor.transform.columns[3][2]),
+                                   @(planeAnchor.transform.columns[3][3]),
+                               ]
                                });
     }
     

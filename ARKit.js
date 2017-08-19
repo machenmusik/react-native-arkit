@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
 });
 
 ARKit.getCameraPosition = ARKitManager.getCameraPosition;
-ARKit.getCameraProjectionMatrix = ARKitManager.getCameraProjectionMatrix;
+ARKit.getCurrentFrameParams = ARKitManager.getCurrentFrameParams;
 ARKit.snapshot = ARKitManager.snapshot;
 ARKit.pause = ARKitManager.pause;
 ARKit.resume = ARKitManager.resume;
