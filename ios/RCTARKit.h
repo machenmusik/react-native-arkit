@@ -29,6 +29,7 @@
 
 @property (nonatomic, copy) RCTBubblingEventBlock onPlaneDetected;
 @property (nonatomic, copy) RCTBubblingEventBlock onPlaneUpdate;
+@property (nonatomic, copy) RCTBubblingEventBlock onPlaneRemoved;
 @property (nonatomic, copy) RCTBubblingEventBlock onTrackingState;
 
 // origins for local frame and camera frame

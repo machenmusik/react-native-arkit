@@ -149,6 +149,7 @@ ARKit.propTypes = {
   lightEstimation: PropTypes.bool,
   onPlaneDetected: PropTypes.func,
   onPlaneUpdate: PropTypes.func,
+  onPlaneRemoved: PropTypes.func,
   onTrackingState: PropTypes.func,
 };
 

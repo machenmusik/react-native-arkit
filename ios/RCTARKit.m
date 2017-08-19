@@ -533,7 +533,25 @@
                              @"quaternion": @{ @"x": @(node.rotation.x), @"y": @(node.rotation.y), @"z": @(node.rotation.z), @"w": @(node.rotation.w) },
                              @"center": @{ @"x": @(planeAnchor.center.x), @"y": @(planeAnchor.center.y), @"z": @(planeAnchor.center.z) },
                              @"extent": @{ @"x": @(planeAnchor.extent.x), @"y": @(planeAnchor.extent.y), @"z": @(planeAnchor.extent.z) },
-                             @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) }
+                             @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) },
+                             @"transform": @[
+                                     @(planeAnchor.transform.columns[0][0]),
+                                     @(planeAnchor.transform.columns[0][1]),
+                                     @(planeAnchor.transform.columns[0][2]),
+                                     @(planeAnchor.transform.columns[0][3]),
+                                     @(planeAnchor.transform.columns[1][0]),
+                                     @(planeAnchor.transform.columns[1][1]),
+                                     @(planeAnchor.transform.columns[1][2]),
+                                     @(planeAnchor.transform.columns[1][3]),
+                                     @(planeAnchor.transform.columns[2][0]),
+                                     @(planeAnchor.transform.columns[2][1]),
+                                     @(planeAnchor.transform.columns[2][2]),
+                                     @(planeAnchor.transform.columns[2][3]),
+                                     @(planeAnchor.transform.columns[3][0]),
+                                     @(planeAnchor.transform.columns[3][1]),
+                                     @(planeAnchor.transform.columns[3][2]),
+                                     @(planeAnchor.transform.columns[3][3]),
+                                     ]
                              });
     }
     
@@ -546,6 +564,10 @@
 }
 
 - (void)renderer:(id <SCNSceneRenderer>)renderer didRemoveNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
+    ARPlaneAnchor *planeAnchor = (ARPlaneAnchor *)anchor;
+    if (self.onPlaneRemoved) {
+        self.onPlaneRemoved(@{ @"id": planeAnchor.identifier.UUIDString });
+    }
     [self.planes removeObjectForKey:anchor.identifier];
 }
 
