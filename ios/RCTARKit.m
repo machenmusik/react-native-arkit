@@ -148,6 +148,7 @@
 - (NSDictionary *)readCurrentFrameParams {
     ARFrame* currentFrame = self.session.currentFrame;
     ARCamera* camera = currentFrame.camera;
+    ARLightEstimate* lightEstimate = currentFrame.lightEstimate;
     return @{
              @"projectionMatrix": @[
               @(camera.projectionMatrix.columns[0][0]),
@@ -167,6 +168,29 @@
               @(camera.projectionMatrix.columns[3][2]),
               @(camera.projectionMatrix.columns[3][3])
               ]
+             ,
+             @"transform": @[
+              @(camera.transform.columns[0][0]),
+              @(camera.transform.columns[0][1]),
+              @(camera.transform.columns[0][2]),
+              @(camera.transform.columns[0][3]),
+              @(camera.transform.columns[1][0]),
+              @(camera.transform.columns[1][1]),
+              @(camera.transform.columns[1][2]),
+              @(camera.transform.columns[1][3]),
+              @(camera.transform.columns[2][0]),
+              @(camera.transform.columns[2][1]),
+              @(camera.transform.columns[2][2]),
+              @(camera.transform.columns[2][3]),
+              @(camera.transform.columns[3][0]),
+              @(camera.transform.columns[3][1]),
+              @(camera.transform.columns[3][2]),
+              @(camera.transform.columns[3][3])
+              ],
+             @"lightEstimate": @{
+              @"ambientIntensity": @(lightEstimate.ambientIntensity)
+              // , @"ambientColorTemperature": @(lightEstimate.ambientColorTemperature)
+             }
              };
 }
 
