@@ -142,7 +142,7 @@
              @"eulerX": @(self.session.currentFrame.camera.eulerAngles[0]),
              @"eulerY": @(self.session.currentFrame.camera.eulerAngles[1]),
              @"eulerZ": @(self.session.currentFrame.camera.eulerAngles[2])
-             };
+            };
 }
 
 - (NSDictionary *)readCurrentFrameParams {
@@ -167,7 +167,7 @@
               @(camera.projectionMatrix.columns[3][1]),
               @(camera.projectionMatrix.columns[3][2]),
               @(camera.projectionMatrix.columns[3][3])
-              ]
+             ]
              ,
              @"transform": @[
               @(camera.transform.columns[0][0]),
@@ -186,12 +186,27 @@
               @(camera.transform.columns[3][1]),
               @(camera.transform.columns[3][2]),
               @(camera.transform.columns[3][3])
-              ],
+             ],
+             @"imageResolution": @{
+              @"width": @(camera.imageResolution.width),
+              @"height": @(camera.imageResolution.height)
+             },
+             @"intrinsics": @[
+              @(camera.intrinsics.columns[0][0]),
+              @(camera.intrinsics.columns[0][1]),
+              @(camera.intrinsics.columns[0][2]),
+              @(camera.intrinsics.columns[1][0]),
+              @(camera.intrinsics.columns[1][1]),
+              @(camera.intrinsics.columns[1][2]),
+              @(camera.intrinsics.columns[2][0]),
+              @(camera.intrinsics.columns[2][1]),
+              @(camera.intrinsics.columns[2][2])
+             ],
              @"lightEstimate": @{
               @"ambientIntensity": @(lightEstimate.ambientIntensity)
               // , @"ambientColorTemperature": @(lightEstimate.ambientColorTemperature)
              }
-             };
+           };
 }
 
 
