@@ -512,8 +512,6 @@
         self.onPlaneDetected(@{
                                @"id": planeAnchor.identifier.UUIDString,
                                @"alignment": @(planeAnchor.alignment),
-                               @"node": @{ @"x": @(node.position.x), @"y": @(node.position.y), @"z": @(node.position.z) },
-                               @"quaternion": @{ @"x": @(node.rotation.x), @"y": @(node.rotation.y), @"z": @(node.rotation.z), @"w": @(node.rotation.w) },
                                @"center": @{ @"x": @(planeAnchor.center.x), @"y": @(planeAnchor.center.y), @"z": @(planeAnchor.center.z) },
                                @"extent": @{ @"x": @(planeAnchor.extent.x), @"y": @(planeAnchor.extent.y), @"z": @(planeAnchor.extent.z) },
                                @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) },
@@ -568,8 +566,6 @@
         self.onPlaneUpdate(@{
                              @"id": planeAnchor.identifier.UUIDString,
                              @"alignment": @(planeAnchor.alignment),
-                             @"node": @{ @"x": @(node.position.x), @"y": @(node.position.y), @"z": @(node.position.z) },
-                             @"quaternion": @{ @"x": @(node.rotation.x), @"y": @(node.rotation.y), @"z": @(node.rotation.z), @"w": @(node.rotation.w) },
                              @"center": @{ @"x": @(planeAnchor.center.x), @"y": @(planeAnchor.center.y), @"z": @(planeAnchor.center.z) },
                              @"extent": @{ @"x": @(planeAnchor.extent.x), @"y": @(planeAnchor.extent.y), @"z": @(planeAnchor.extent.z) },
                              @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) },
