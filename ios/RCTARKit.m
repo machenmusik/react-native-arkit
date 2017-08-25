@@ -149,43 +149,81 @@
     ARFrame* currentFrame = self.session.currentFrame;
     ARCamera* camera = currentFrame.camera;
     ARLightEstimate* lightEstimate = currentFrame.lightEstimate;
+    
+    UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
+    CGSize size = {UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height};
+    // TODO: get dynamic values
+    CGFloat zNear = 0.1;
+    CGFloat zFar = 10000;
+    matrix_float4x4 projectionMatrix =
+      [camera projectionMatrixForOrientation:orientation viewportSize:size zNear:zNear zFar:zFar];
+    
+    matrix_float4x4 rotatedMatrix = matrix_identity_float4x4;
+    // rotation  matrix
+    // [ cos    -sin]
+    // [ sin     cos]
+    switch (orientation) {
+        case UIInterfaceOrientationPortrait:
+            rotatedMatrix.columns[0][0] = 0;
+            rotatedMatrix.columns[0][1] = 1;
+            rotatedMatrix.columns[1][0] = -1;
+            rotatedMatrix.columns[1][1] = 0;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            rotatedMatrix.columns[0][0] = -1;
+            rotatedMatrix.columns[0][1] = 0;
+            rotatedMatrix.columns[1][0] = 0;
+            rotatedMatrix.columns[1][1] = -1;
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            rotatedMatrix.columns[0][0] = 0;
+            rotatedMatrix.columns[0][1] = -1;
+            rotatedMatrix.columns[1][0] = 1;
+            rotatedMatrix.columns[1][1] = 0;
+            break;
+        default:
+            break;
+    }
+    matrix_float4x4 transform = matrix_multiply(camera.transform, rotatedMatrix);
+    
     return @{
+             @"timestamp": @(currentFrame.timestamp),
              @"projectionMatrix": @[
-              @(camera.projectionMatrix.columns[0][0]),
-              @(camera.projectionMatrix.columns[0][1]),
-              @(camera.projectionMatrix.columns[0][2]),
-              @(camera.projectionMatrix.columns[0][3]),
-              @(camera.projectionMatrix.columns[1][0]),
-              @(camera.projectionMatrix.columns[1][1]),
-              @(camera.projectionMatrix.columns[1][2]),
-              @(camera.projectionMatrix.columns[1][3]),
-              @(camera.projectionMatrix.columns[2][0]),
-              @(camera.projectionMatrix.columns[2][1]),
-              @(camera.projectionMatrix.columns[2][2]),
-              @(camera.projectionMatrix.columns[2][3]),
-              @(camera.projectionMatrix.columns[3][0]),
-              @(camera.projectionMatrix.columns[3][1]),
-              @(camera.projectionMatrix.columns[3][2]),
-              @(camera.projectionMatrix.columns[3][3])
+              @(projectionMatrix.columns[0][0]),
+              @(projectionMatrix.columns[0][1]),
+              @(projectionMatrix.columns[0][2]),
+              @(projectionMatrix.columns[0][3]),
+              @(projectionMatrix.columns[1][0]),
+              @(projectionMatrix.columns[1][1]),
+              @(projectionMatrix.columns[1][2]),
+              @(projectionMatrix.columns[1][3]),
+              @(projectionMatrix.columns[2][0]),
+              @(projectionMatrix.columns[2][1]),
+              @(projectionMatrix.columns[2][2]),
+              @(projectionMatrix.columns[2][3]),
+              @(projectionMatrix.columns[3][0]),
+              @(projectionMatrix.columns[3][1]),
+              @(projectionMatrix.columns[3][2]),
+              @(projectionMatrix.columns[3][3])
              ]
              ,
              @"transform": @[
-              @(camera.transform.columns[0][0]),
-              @(camera.transform.columns[0][1]),
-              @(camera.transform.columns[0][2]),
-              @(camera.transform.columns[0][3]),
-              @(camera.transform.columns[1][0]),
-              @(camera.transform.columns[1][1]),
-              @(camera.transform.columns[1][2]),
-              @(camera.transform.columns[1][3]),
-              @(camera.transform.columns[2][0]),
-              @(camera.transform.columns[2][1]),
-              @(camera.transform.columns[2][2]),
-              @(camera.transform.columns[2][3]),
-              @(camera.transform.columns[3][0]),
-              @(camera.transform.columns[3][1]),
-              @(camera.transform.columns[3][2]),
-              @(camera.transform.columns[3][3])
+              @(transform.columns[0][0]),
+              @(transform.columns[0][1]),
+              @(transform.columns[0][2]),
+              @(transform.columns[0][3]),
+              @(transform.columns[1][0]),
+              @(transform.columns[1][1]),
+              @(transform.columns[1][2]),
+              @(transform.columns[1][3]),
+              @(transform.columns[2][0]),
+              @(transform.columns[2][1]),
+              @(transform.columns[2][2]),
+              @(transform.columns[2][3]),
+              @(transform.columns[3][0]),
+              @(transform.columns[3][1]),
+              @(transform.columns[3][2]),
+              @(transform.columns[3][3])
              ],
              @"imageResolution": @{
               @"width": @(camera.imageResolution.width),
@@ -203,8 +241,8 @@
               @(camera.intrinsics.columns[2][2])
              ],
              @"lightEstimate": @{
-              @"ambientIntensity": @(lightEstimate.ambientIntensity)
-              // , @"ambientColorTemperature": @(lightEstimate.ambientColorTemperature)
+              @"ambientIntensity": @(lightEstimate.ambientIntensity),
+              @"ambientColorTemperature": @(lightEstimate.ambientColorTemperature)
              }
            };
 }
