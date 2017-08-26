@@ -10,7 +10,7 @@
 #import "Plane.h"
 @import CoreLocation;
 @import Vision;
-#import "SqueezeNet.h"
+#import "Inceptionv3.h"
 
 @interface RCTARKit () <ARSCNViewDelegate> {
     RCTPromiseResolveBlock _resolve;
@@ -254,14 +254,21 @@
     ARCamera* camera = currentFrame.camera;
     
     // make Vision call
-    MLModel* model = [[[SqueezeNet alloc] init] model];
+    MLModel* model = [[[Inceptionv3 alloc] init] model];
     VNCoreMLModel* vnmodel = [VNCoreMLModel modelForMLModel:model error:nil];
     VNCoreMLRequest* rq = [[VNCoreMLRequest alloc] initWithModel: vnmodel completionHandler: (VNRequestCompletionHandler) ^(VNRequest *request, NSError *error){
         dispatch_async(dispatch_get_main_queue(), ^{
-            // fulfill promise
+            // fulfill promise by building the results
+            // NOTE: using SqueezeNet there were 997 results, many of which were exceedingly low confidence;
+            // let's truncate to top ten for now
+            NSMutableArray* results = [[NSMutableArray alloc] init];
+            for (NSUInteger i=0; i<request.results.count && i<10; i++) {
+                VNClassificationObservation* thisResult = (VNClassificationObservation *)request.results[i];
+                [results addObject: @{ @"confidence": @(thisResult.confidence), @"identifier": thisResult.identifier}];
+            }
             resolve(@{
                       @"timestamp": @(currentFrame.timestamp),
-                      @"results": [request.results copy]
+                      @"results": results
                       });
         });
     }];
