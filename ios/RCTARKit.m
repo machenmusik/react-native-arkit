@@ -9,6 +9,8 @@
 #import "RCTARKit.h"
 #import "Plane.h"
 @import CoreLocation;
+@import Vision;
+#import "SqueezeNet.h"
 
 @interface RCTARKit () <ARSCNViewDelegate> {
     RCTPromiseResolveBlock _resolve;
@@ -247,7 +249,32 @@
            };
 }
 
-
+- (void)analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    ARFrame* currentFrame = self.session.currentFrame;
+    ARCamera* camera = currentFrame.camera;
+    
+    // make Vision call
+    MLModel* model = [[[SqueezeNet alloc] init] model];
+    VNCoreMLModel* vnmodel = [VNCoreMLModel modelForMLModel:model error:nil];
+    VNCoreMLRequest* rq = [[VNCoreMLRequest alloc] initWithModel: vnmodel completionHandler: (VNRequestCompletionHandler) ^(VNRequest *request, NSError *error){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // fulfill promise
+            resolve(@{
+                      @"timestamp": @(currentFrame.timestamp),
+                      @"results": [request.results copy]
+                      });
+        });
+    }];
+    
+    NSDictionary *d = [[NSDictionary alloc] init];
+    NSArray *a = @[rq];
+    
+    VNImageRequestHandler *handler = [[VNImageRequestHandler alloc]
+                                      initWithCVPixelBuffer:currentFrame.capturedImage options:d];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [handler performRequests:a error:nil];
+    });
+}
 
 #pragma mark - Lazy loads
 

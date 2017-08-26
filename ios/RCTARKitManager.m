@@ -48,6 +48,10 @@ RCT_EXPORT_METHOD(getCurrentFrameParams:(RCTPromiseResolveBlock)resolve reject:(
     resolve([[ARKit sharedInstance] readCurrentFrameParams]);
 }
 
+RCT_EXPORT_METHOD(analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    [[ARKit sharedInstance] analyzeCurrentFrame:resolve reject:reject];
+}
+
 RCT_EXPORT_METHOD(addBox:(NSDictionary *)property) {
     [[ARKit sharedInstance] addBox:property];
 }
