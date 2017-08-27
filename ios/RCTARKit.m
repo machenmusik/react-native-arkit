@@ -284,6 +284,38 @@
     });
 }
 
+- (void)barcodesCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    ARFrame* currentFrame = self.session.currentFrame;
+    ARCamera* camera = currentFrame.camera;
+    
+    // make Vision call
+    VNDetectBarcodesRequest* rq = [[VNDetectBarcodesRequest alloc] initWithCompletionHandler: (VNRequestCompletionHandler) ^(VNRequest *request, NSError *error){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // fulfill promise by building the results
+            // NOTE: using SqueezeNet there were 997 results, many of which were exceedingly low confidence;
+            // let's truncate to top ten for now
+            NSMutableArray* results = [[NSMutableArray alloc] init];
+            for (NSUInteger i=0; i<request.results.count && i<10; i++) {
+                VNBarcodeObservation* thisResult = (VNBarcodeObservation *)request.results[i];
+                [results addObject: @{ @"payload": thisResult.payloadStringValue, @"symbology": (NSString*)(thisResult.symbology) }];
+            }
+            resolve(@{
+                      @"timestamp": @(currentFrame.timestamp),
+                      @"results": results
+                      });
+        });
+    }];
+    
+    NSDictionary *d = [[NSDictionary alloc] init];
+    NSArray *a = @[rq];
+    
+    VNImageRequestHandler *handler = [[VNImageRequestHandler alloc]
+                                      initWithCVPixelBuffer:currentFrame.capturedImage options:d];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [handler performRequests:a error:nil];
+    });
+}
+
 #pragma mark - Lazy loads
 
 -(ARWorldTrackingSessionConfiguration *)configuration {

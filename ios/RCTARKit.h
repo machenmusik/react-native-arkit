@@ -49,6 +49,7 @@
 - (NSDictionary *)readCameraPosition;
 - (NSDictionary *)readCurrentFrameParams;
 - (void)analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)barcodesCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 
 
 #pragma mark add

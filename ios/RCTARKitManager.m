@@ -52,6 +52,10 @@ RCT_EXPORT_METHOD(analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RC
     [[ARKit sharedInstance] analyzeCurrentFrame:resolve reject:reject];
 }
 
+RCT_EXPORT_METHOD(barcodesCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    [[ARKit sharedInstance] barcodesCurrentFrame:resolve reject:reject];
+}
+
 RCT_EXPORT_METHOD(addBox:(NSDictionary *)property) {
     [[ARKit sharedInstance] addBox:property];
 }
