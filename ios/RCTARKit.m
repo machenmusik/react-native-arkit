@@ -152,7 +152,8 @@
     ARCamera* camera = currentFrame.camera;
     ARLightEstimate* lightEstimate = currentFrame.lightEstimate;
     
-    UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
+    // FIXME: should be [UIApplication statusBarOrientation] but can only call that on main thread
+    UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
     CGSize size = {UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height};
     // TODO: get dynamic values
     CGFloat zNear = 0.1;
