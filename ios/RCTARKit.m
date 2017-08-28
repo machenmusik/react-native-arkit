@@ -250,6 +250,21 @@
            };
 }
 
+- (NSDictionary *)readCurrentFramePointCloud {
+    ARFrame* currentFrame = self.session.currentFrame;
+    ARPointCloud* pointcloud = currentFrame.rawFeaturePoints;
+    NSMutableArray* points = [[NSMutableArray alloc] initWithCapacity:pointcloud.count];
+    for (unsigned i=0; i<pointcloud.count; i++) {
+        [points addObject: @(pointcloud.points[i].x)];
+        [points addObject: @(pointcloud.points[i].y)];
+        [points addObject: @(pointcloud.points[i].z)];
+    }
+    return @{
+             @"timestamp": @(currentFrame.timestamp),
+             @"points": points
+             };
+}
+
 - (void)analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     ARFrame* currentFrame = self.session.currentFrame;
     ARCamera* camera = currentFrame.camera;

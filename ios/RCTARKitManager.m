@@ -26,6 +26,11 @@ RCT_EXPORT_VIEW_PROPERTY(onPlaneUpdate, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlaneRemoved, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onTrackingState, RCTBubblingEventBlock)
 
+RCT_EXPORT_METHOD(setPlaneDetection:(BOOL)value resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    [[ARKit sharedInstance] setPlaneDetection:value];
+    resolve(@{});
+}
+
 RCT_EXPORT_METHOD(pause:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [[ARKit sharedInstance] pause];
     resolve(@{});
@@ -46,6 +51,10 @@ RCT_EXPORT_METHOD(getCameraPosition:(RCTPromiseResolveBlock)resolve reject:(RCTP
 
 RCT_EXPORT_METHOD(getCurrentFrameParams:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     resolve([[ARKit sharedInstance] readCurrentFrameParams]);
+}
+
+RCT_EXPORT_METHOD(getCurrentFramePointCloud:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    resolve([[ARKit sharedInstance] readCurrentFramePointCloud]);
 }
 
 RCT_EXPORT_METHOD(analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {

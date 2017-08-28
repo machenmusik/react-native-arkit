@@ -127,11 +127,13 @@ const styles = StyleSheet.create({
 
 ARKit.getCameraPosition = ARKitManager.getCameraPosition;
 ARKit.getCurrentFrameParams = ARKitManager.getCurrentFrameParams;
+ARKit.getCurrentFramePointCloud = ARKitManager.getCurrentFramePointCloud;
 ARKit.analyzeCurrentFrame = ARKitManager.analyzeCurrentFrame;
 ARKit.barcodesCurrentFrame = ARKitManager.barcodesCurrentFrame;
 ARKit.snapshot = ARKitManager.snapshot;
 ARKit.pause = ARKitManager.pause;
 ARKit.resume = ARKitManager.resume;
+ARKit.setPlaneDetection = ARKitManager.setPlaneDetection;
 ARKit.addBox = parseColorWrapper(ARKitManager.addBox);
 ARKit.addSphere = parseColorWrapper(ARKitManager.addSphere);
 ARKit.addCylinder = parseColorWrapper(ARKitManager.addCylinder);
