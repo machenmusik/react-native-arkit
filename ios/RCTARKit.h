@@ -31,9 +31,9 @@
 @property (nonatomic, copy) RCTBubblingEventBlock onPlaneUpdate;
 @property (nonatomic, copy) RCTBubblingEventBlock onPlaneRemoved;
 @property (nonatomic, copy) RCTBubblingEventBlock onTrackingState;
-@property (nonatomic, copy) RCTBubblingEventBlock onUpdateWindowSize;
-@property (nonatomic, copy) RCTBubblingEventBlock onSetData;
-@property (nonatomic, copy) RCTBubblingEventBlock onAnchorEvent;
+@property (nonatomic, copy) RCTBubblingEventBlock onWebARUpdateWindowSize;
+@property (nonatomic, copy) RCTBubblingEventBlock onWebARSetData;
+@property (nonatomic, copy) RCTBubblingEventBlock onWebARAnchorEvent;
 
 // origins for local frame and camera frame
 @property (nonatomic, strong) SCNNode *localOrigin;
@@ -56,6 +56,7 @@
 #pragma mark - Public Method
 - (void)pause;
 - (void)resume;
+- (void)restart;
 - (void)snapshot:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 
 - (NSDictionary *)readCameraPosition;
@@ -99,6 +100,11 @@
 - (void)renderer:(id <SCNSceneRenderer>)renderer didRemoveNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor;
 
 - (void)session:(ARSession *)session didUpdateFrame:(ARFrame *)frame;
+
+- (void)session:(ARSession *)session didAddAnchors:(nonnull NSArray<ARAnchor *> *)anchors;
+- (void)session:(ARSession *)session didUpdateAnchors:(nonnull NSArray<ARAnchor *> *)anchors;
+- (void)session:(ARSession *)session didRemoveAnchors:(nonnull NSArray<ARAnchor *> *)anchors;
+
 - (void)session:(ARSession *)session cameraDidChangeTrackingState:(ARCamera *)camera;
 
 @end

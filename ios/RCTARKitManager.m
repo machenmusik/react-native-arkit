@@ -25,9 +25,9 @@ RCT_EXPORT_VIEW_PROPERTY(onPlaneDetected, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlaneUpdate, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlaneRemoved, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onTrackingState, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onSetData, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAnchorEvent, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onUpdateWindowSize, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onWebARSetData, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onWebARAnchorEvent, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onWebARUpdateWindowSize, RCTBubblingEventBlock)
 
 RCT_EXPORT_METHOD(setPlaneDetection:(BOOL)value resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [[ARKit sharedInstance] setPlaneDetection:value];
@@ -40,6 +40,11 @@ RCT_EXPORT_METHOD(pause:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseReject
 }
 
 RCT_EXPORT_METHOD(resume:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    [[RCTARKit sharedInstance] resume];
+    resolve(@{});
+}
+
+RCT_EXPORT_METHOD(restart:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [[RCTARKit sharedInstance] resume];
     resolve(@{});
 }

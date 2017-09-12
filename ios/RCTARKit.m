@@ -102,7 +102,9 @@
     [self.session runWithConfiguration:self.configuration];
 }
 
-
+- (void)restart {
+    [self.session runWithConfiguration:self.configuration options:ARSessionRunOptionResetTracking];
+}
 
 #pragma mark - setter-getter
 
@@ -645,7 +647,7 @@
     //            @"extent": @{ @"x": @(planeAnchor.extent.x), @"y": @(planeAnchor.extent.y), @"z": @(planeAnchor.extent.z) },
     //            @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) }
     //            });
-    
+
     if (self.onPlaneDetected) {
         self.onPlaneDetected(@{
                                @"id": planeAnchor.identifier.UUIDString,
@@ -673,7 +675,7 @@
                                ]
                                });
     }
-    
+
     Plane *plane = [[Plane alloc] initWithAnchor: (ARPlaneAnchor *)anchor isHidden: ([self debug] ? NO : YES)];
     [self.planes setObject:plane forKey:anchor.identifier];
     [node addChildNode:plane];
@@ -699,7 +701,7 @@
     //                   @"extent": @{ @"x": @(planeAnchor.extent.x), @"y": @(planeAnchor.extent.y), @"z": @(planeAnchor.extent.z) },
     //                   @"camera": @{ @"x": @(self.cameraOrigin.position.x), @"y": @(self.cameraOrigin.position.y), @"z": @(self.cameraOrigin.position.z) }
     //                   });
-    
+
     if (self.onPlaneUpdate) {
         self.onPlaneUpdate(@{
                              @"id": planeAnchor.identifier.UUIDString,
@@ -727,7 +729,7 @@
                                      ]
                              });
     }
-    
+
     Plane *plane = [self.planes objectForKey:anchor.identifier];
     if (plane == nil) {
         return;
@@ -738,9 +740,11 @@
 
 - (void)renderer:(id <SCNSceneRenderer>)renderer didRemoveNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
     ARPlaneAnchor *planeAnchor = (ARPlaneAnchor *)anchor;
+
     if (self.onPlaneRemoved) {
         self.onPlaneRemoved(@{ @"id": planeAnchor.identifier.UUIDString });
     }
+
     [self.planes removeObjectForKey:anchor.identifier];
 }
 
@@ -780,8 +784,8 @@
 */
                           viewportSize:CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height)
 
-                                 zNear:0.001 //self->near
-                                 zFar:10000]; //self->far];
+                                 zNear:self.near
+                                 zFar:self.far];
 
     const float *pModelMatrix = (const float *)(&modelMatrix);
     const float *pViewMatrix = (const float *)(&viewMatrix);
@@ -862,24 +866,14 @@
                          pProjectionMatrix[12], pProjectionMatrix[13],
                          pProjectionMatrix[14], pProjectionMatrix[15],
                          anchors];
-/*
-    [self->wkWebView
-        evaluateJavaScript:jsCode
-         completionHandler:^(id data, NSError *error) {
-             if (error) {
-                 [self showAlertDialog:
-                           [NSString stringWithFormat:@"ERROR: Evaluating jscode: %@",
-                                                      error]
-                     completionHandler:^{
-                     }];
-             }
-         }];
-*/
-    if (self.onSetData) {
-        self.onSetData(@{ @"js": jsCode });
+
+    if (self.onWebARSetData) {
+        // FIXME: this isn't getting through!
+        self.onWebARSetData(@{ @"js": jsCode });
     }
     //This needs to be called after because the window size will affect the
     //projection matrix calculation upon resize
+    
     if (_updateWindowSize) {
 /*
         int width = self->wkWebView.frame.size.width;
@@ -887,28 +881,15 @@
  */
         int width = UIScreen.mainScreen.bounds.size.width;
         int height = UIScreen.mainScreen.bounds.size.height;
-/*
+
         NSString *updateWindowSizeJsCode = [NSString
             stringWithFormat:
                 @"if(window.WebARonARKitSetWindowSize)"
                 @"WebARonARKitSetWindowSize({\"width\":%i,\"height\":%i});",
                 width, height];
-        [self->wkWebView
-            evaluateJavaScript:updateWindowSizeJsCode
-             completionHandler:^(id data, NSError *error) {
-                 if (error) {
-                     [self showAlertDialog:
-                               [NSString stringWithFormat:
-                                             @"ERROR: Evaluating jscode to provide "
-                                             @"window size: %@",
-                                             error]
-                         completionHandler:^{
-                         }];
-                 }
-             }];
-*/
-        if (self.onUpdateWindowSize) {
-            self.onUpdateWindowSize(@{ @"width":@(width), @"height":@(height) });
+
+        if (self.onWebARUpdateWindowSize) {
+            self.onWebARUpdateWindowSize(@{ @"js": updateWindowSizeJsCode });
         }
         _updateWindowSize = false;
     }
@@ -921,12 +902,6 @@
 
 - (void)session:(ARSession *)session notifyAnchorEvent:(NSString*)type anchors:(nonnull NSArray<ARAnchor *> *)anchors
 {
-    // The session did something to anchors; notify the JS side about it.
-    // ??? Is ARAnchor serializable across the bridge?  If so, just use it
-    if (self.onAnchorEvent) {
-        self.onAnchorEvent(@{ @"type": type, @"anchors": anchors });
-    }
-/*
     NSString *anchorsStr = @"[";
     for (int i = 0; i < anchors.count; i++) {
         ARPlaneAnchor *anchor = (ARPlaneAnchor *)anchors[i];
@@ -965,19 +940,10 @@
                         @"});",
                         type,
                         anchorsStr];
-    
-    [self->wkWebView
-     evaluateJavaScript:jsCode
-     completionHandler:^(id data, NSError *error) {
-         if (error) {
-             [self showAlertDialog:
-              [NSString stringWithFormat:@"ERROR: Evaluating jscode: %@",
-               error]
-                 completionHandler:^{
-                 }];
-         }
-     }];
-*/
+
+    if (self.onWebARAnchorEvent) {
+        self.onWebARAnchorEvent(@{ @"js": jsCode });
+    }
 }
 
 - (void)session:(ARSession *)session didAddAnchors:(nonnull NSArray<ARAnchor *> *)anchors
@@ -1002,15 +968,6 @@
 
 - (void)deviceOrientationDidChange:(NSNotification *)notification
 {
-//    [self->urlTextField setFrame:CGRectMake(URL_TEXTFIELD_HEIGHT, 0, self.view.frame.size.width - URL_TEXTFIELD_HEIGHT * 2, URL_TEXTFIELD_HEIGHT)];
-
-//    [self->refreshButton setFrame:CGRectMake(self.view.frame.size.width - URL_TEXTFIELD_HEIGHT, 0, URL_TEXTFIELD_HEIGHT, URL_TEXTFIELD_HEIGHT)];
-
-//    [self->wkWebView setFrame:CGRectMake(0, URL_TEXTFIELD_HEIGHT, self.view.frame.size.width,
-//                                         self.view.frame.size.height - URL_TEXTFIELD_HEIGHT)];
-
-//    [self.progressView setFrame:CGRectMake(0, URL_TEXTFIELD_HEIGHT - PROGRESSVIEW_HEIGHT, self.view.frame.size.width, PROGRESSVIEW_HEIGHT)];
-    
     [self updateOrientation];
     _updateWindowSize = true;
 }
