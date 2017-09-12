@@ -25,6 +25,9 @@ RCT_EXPORT_VIEW_PROPERTY(onPlaneDetected, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlaneUpdate, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onPlaneRemoved, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onTrackingState, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onSetData, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onAnchorEvent, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onUpdateWindowSize, RCTBubblingEventBlock)
 
 RCT_EXPORT_METHOD(setPlaneDetection:(BOOL)value resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [[ARKit sharedInstance] setPlaneDetection:value];

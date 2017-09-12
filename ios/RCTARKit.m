@@ -67,6 +67,24 @@
         // start ARKit
         [self addSubview:arView];
         [self resume];
+
+    ////////////////////////////////////////////////////////////
+    // Imported device orientation listening from WebARonARKit.
+    ////////////////////////////////////////////////////////////
+
+        self.near = 0.001;
+        self.far = 10000;
+    // Calculate the orientation of the device
+    UIDevice *device = [UIDevice currentDevice];
+    [device beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+           selector:@selector(deviceOrientationDidChange:)
+               name:UIDeviceOrientationDidChangeNotification
+             object:nil];
+    _deviceOrientation = [device orientation];
+    [self updateOrientation];
+
     }
     return self;
 }
@@ -156,8 +174,8 @@
     UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
     CGSize size = {UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height};
     // TODO: get dynamic values
-    CGFloat zNear = 0.1;
-    CGFloat zFar = 10000;
+    CGFloat zNear = self.near;
+    CGFloat zFar = self.far;
     matrix_float4x4 projectionMatrix =
       [camera projectionMatrixForOrientation:orientation viewportSize:size zNear:zNear zFar:zFar];
     
@@ -736,7 +754,294 @@
     self.cameraOrigin.position = SCNVector3Make(pos.x, pos.y, pos.z);
     simd_float4 z = frame.camera.transform.columns[2];
     self.cameraOrigin.eulerAngles = SCNVector3Make(0, atan2f(z.x, z.z), 0);
+
+    //////////////////////////////////////////////////////////////////
+    // Add WebARonARKit's SetData call here (including planes).
+    // NOTE: still need to inject desired Javascript initially.
+    // NOTE: can send objects through RN, not just JavaScript string.
+    // NOTE: assumes fullscreen webview size.
+    //////////////////////////////////////////////////////////////////
+
+    // If the window size has changed, notify the JS side about it.
+    // This is a hack due to the WKWebView not handling the
+    // window.innerWidth/Height
+    // correctly in the window.onresize events.
+    // TODO: Remove this hack once the WKWebView has fixed the issue.
+
+    // Send the per frame data needed in the JS side
+    matrix_float4x4 viewMatrix =
+        [frame.camera viewMatrixForOrientation:_interfaceOrientation];
+    matrix_float4x4 modelMatrix = matrix_invert(viewMatrix);
+    matrix_float4x4 projectionMatrix = [frame.camera
+        projectionMatrixForOrientation:_interfaceOrientation
+/*
+                          viewportSize:CGSizeMake(self->wkWebView.frame.size.width,
+                                                  self->wkWebView.frame.size.height)
+*/
+                          viewportSize:CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height)
+
+                                 zNear:0.001 //self->near
+                                 zFar:10000]; //self->far];
+
+    const float *pModelMatrix = (const float *)(&modelMatrix);
+    const float *pViewMatrix = (const float *)(&viewMatrix);
+    const float *pProjectionMatrix = (const float *)(&projectionMatrix);
+
+    simd_quatf orientationQuat = simd_quaternion(modelMatrix);
+    const float *pOrientationQuat = (const float *)(&orientationQuat);
+    float position[3];
+    position[0] = pModelMatrix[12];
+    position[1] = pModelMatrix[13];
+    position[2] = pModelMatrix[14];
+
+    // TODO: Testing to see if we can pass the whole frame to JS...
+    //  size_t width = CVPixelBufferGetWidth(frame.capturedImage);
+    //  size_t height = CVPixelBufferGetHeight(frame.capturedImage);
+    //  size_t bytesPerRow = CVPixelBufferGetBytesPerRow(frame.capturedImage);
+    //  void* pixels = CVPixelBufferGetBaseAddress(frame.capturedImage);
+    //  OSType pixelFormatType =
+    //  CVPixelBufferGetPixelFormatType(frame.capturedImage);
+    //  NSLog(@"width = %d, height = %d, bytesPerRow = %d, ostype = %d", width,
+    //  height, bytesPerRow, pixelFormatType);
+
+    NSString *anchors = @"[";
+    for (int i = 0; i < frame.anchors.count; i++) {
+        ARPlaneAnchor *anchor = (ARPlaneAnchor *)frame.anchors[i];
+        matrix_float4x4 anchorTransform = anchor.transform;
+        const float *anchorMatrix = (const float *)(&anchorTransform);
+        //NSLog(@"Plane extent (native) %@", [NSString stringWithFormat: @"%f,%f,%f", anchor.extent.x, anchor.extent.y, anchor.extent.z]);
+        NSString *anchorStr = [NSString stringWithFormat:
+                                            @"{\"transform\":[%f,%f,%f,%f,%f,%f,%f,%"
+                                            @"f,%f,%f,%f,%f,%f,%f,%f,%f],"
+                                            @"\"identifier\":%i,"
+                                            @"\"alignment\":%i,"
+                                            @"\"center\":[%f,%f,%f],"
+                                            @"\"extent\":[%f,%f]}",
+                                            anchorMatrix[0], anchorMatrix[1], anchorMatrix[2],
+                                            anchorMatrix[3], anchorMatrix[4], anchorMatrix[5],
+                                            anchorMatrix[6], anchorMatrix[7], anchorMatrix[8],
+                                            anchorMatrix[9], anchorMatrix[10], anchorMatrix[11],
+                                            anchorMatrix[12], anchorMatrix[13], anchorMatrix[14],
+                                            anchorMatrix[15],
+                                            (int)anchor.identifier,
+                                            (int)anchor.alignment,
+                                            anchor.center.x, anchor.center.y, anchor.center.z,
+                                            anchor.extent.x, anchor.extent.z];
+        if (i < frame.anchors.count - 1) {
+            anchorStr = [anchorStr stringByAppendingString:@","];
+        }
+        anchors = [anchors stringByAppendingString:anchorStr];
+    }
+    anchors = [anchors stringByAppendingString:@"]"];
+
+    NSString *jsCode = [NSString
+        stringWithFormat:@"if (window.WebARonARKitSetData) "
+                         @"window.WebARonARKitSetData({"
+                         @"\"position\":[%f,%f,%f],"
+                         @"\"orientation\":[%f,%f,%f,%f],"
+                         @"\"viewMatrix\":[%f,%f,%f,%f,%f,%f,%f,%"
+                         @"f,%f,%f,%f,%f,%f,%f,%f,%f],"
+                         @"\"projectionMatrix\":[%f,%f,%f,%f,%f,%f,%f,%"
+                         @"f,%f,%f,%f,%f,%f,%f,%f,%f],"
+                         @"\"anchors\":%@"
+                         @"});",
+                         position[0], position[1], position[2],
+                         pOrientationQuat[0], pOrientationQuat[1],
+                         pOrientationQuat[2], pOrientationQuat[3], pViewMatrix[0],
+                         pViewMatrix[1], pViewMatrix[2], pViewMatrix[3],
+                         pViewMatrix[4], pViewMatrix[5], pViewMatrix[6],
+                         pViewMatrix[7], pViewMatrix[8], pViewMatrix[9],
+                         pViewMatrix[10], pViewMatrix[11], pViewMatrix[12],
+                         pViewMatrix[13], pViewMatrix[14], pViewMatrix[15],
+                         pProjectionMatrix[0], pProjectionMatrix[1],
+                         pProjectionMatrix[2], pProjectionMatrix[3],
+                         pProjectionMatrix[4], pProjectionMatrix[5],
+                         pProjectionMatrix[6], pProjectionMatrix[7],
+                         pProjectionMatrix[8], pProjectionMatrix[9],
+                         pProjectionMatrix[10], pProjectionMatrix[11],
+                         pProjectionMatrix[12], pProjectionMatrix[13],
+                         pProjectionMatrix[14], pProjectionMatrix[15],
+                         anchors];
+/*
+    [self->wkWebView
+        evaluateJavaScript:jsCode
+         completionHandler:^(id data, NSError *error) {
+             if (error) {
+                 [self showAlertDialog:
+                           [NSString stringWithFormat:@"ERROR: Evaluating jscode: %@",
+                                                      error]
+                     completionHandler:^{
+                     }];
+             }
+         }];
+*/
+    if (self.onSetData) {
+        self.onSetData(@{ @"js": jsCode });
+    }
+    //This needs to be called after because the window size will affect the
+    //projection matrix calculation upon resize
+    if (_updateWindowSize) {
+/*
+        int width = self->wkWebView.frame.size.width;
+        int height = self->wkWebView.frame.size.height;
+ */
+        int width = UIScreen.mainScreen.bounds.size.width;
+        int height = UIScreen.mainScreen.bounds.size.height;
+/*
+        NSString *updateWindowSizeJsCode = [NSString
+            stringWithFormat:
+                @"if(window.WebARonARKitSetWindowSize)"
+                @"WebARonARKitSetWindowSize({\"width\":%i,\"height\":%i});",
+                width, height];
+        [self->wkWebView
+            evaluateJavaScript:updateWindowSizeJsCode
+             completionHandler:^(id data, NSError *error) {
+                 if (error) {
+                     [self showAlertDialog:
+                               [NSString stringWithFormat:
+                                             @"ERROR: Evaluating jscode to provide "
+                                             @"window size: %@",
+                                             error]
+                         completionHandler:^{
+                         }];
+                 }
+             }];
+*/
+        if (self.onUpdateWindowSize) {
+            self.onUpdateWindowSize(@{ @"width":@(width), @"height":@(height) });
+        }
+        _updateWindowSize = false;
+    }
 }
+
+//////////////////////////////////////////////////////////////////
+// Import proposed notification hooks from WebARonARKit.
+// NOTE: can send objects through RN, not just JavaScript string.
+//////////////////////////////////////////////////////////////////
+
+- (void)session:(ARSession *)session notifyAnchorEvent:(NSString*)type anchors:(nonnull NSArray<ARAnchor *> *)anchors
+{
+    // The session did something to anchors; notify the JS side about it.
+    // ??? Is ARAnchor serializable across the bridge?  If so, just use it
+    if (self.onAnchorEvent) {
+        self.onAnchorEvent(@{ @"type": type, @"anchors": anchors });
+    }
+/*
+    NSString *anchorsStr = @"[";
+    for (int i = 0; i < anchors.count; i++) {
+        ARPlaneAnchor *anchor = (ARPlaneAnchor *)anchors[i];
+        matrix_float4x4 anchorTransform = anchor.transform;
+        const float *anchorMatrix = (const float *)(&anchorTransform);
+        //NSLog(@"Plane extent (native) %@", [NSString stringWithFormat: @"%f,%f,%f", anchor.extent.x, anchor.extent.y, anchor.extent.z]);
+        NSString *anchorStr = [NSString stringWithFormat:
+                               @"{\"transform\":[%f,%f,%f,%f,%f,%f,%f,%"
+                               @"f,%f,%f,%f,%f,%f,%f,%f,%f],"
+                               @"\"identifier\":%i,"
+                               @"\"alignment\":%i,"
+                               @"\"center\":[%f,%f,%f],"
+                               @"\"extent\":[%f,%f]}",
+                               anchorMatrix[0], anchorMatrix[1], anchorMatrix[2],
+                               anchorMatrix[3], anchorMatrix[4], anchorMatrix[5],
+                               anchorMatrix[6], anchorMatrix[7], anchorMatrix[8],
+                               anchorMatrix[9], anchorMatrix[10], anchorMatrix[11],
+                               anchorMatrix[12], anchorMatrix[13], anchorMatrix[14],
+                               anchorMatrix[15],
+                               (int)anchor.identifier,
+                               (int)anchor.alignment,
+                               anchor.center.x, anchor.center.y, anchor.center.z,
+                               anchor.extent.x, anchor.extent.z];
+        if (i < anchors.count - 1) {
+            anchorStr = [anchorStr stringByAppendingString:@","];
+        }
+        anchorsStr = [anchorsStr stringByAppendingString:anchorStr];
+    }
+    anchorsStr = [anchorsStr stringByAppendingString:@"]"];
+    
+    NSString *jsCode = [NSString
+                        stringWithFormat:@"if (window.WebARonARKitAnchorEvent) "
+                        @"window.WebARonARKitAnchorEvent({"
+                        @"\"type\":\"%@\","
+                        @"\"anchors\":%@"
+                        @"});",
+                        type,
+                        anchorsStr];
+    
+    [self->wkWebView
+     evaluateJavaScript:jsCode
+     completionHandler:^(id data, NSError *error) {
+         if (error) {
+             [self showAlertDialog:
+              [NSString stringWithFormat:@"ERROR: Evaluating jscode: %@",
+               error]
+                 completionHandler:^{
+                 }];
+         }
+     }];
+*/
+}
+
+- (void)session:(ARSession *)session didAddAnchors:(nonnull NSArray<ARAnchor *> *)anchors
+{
+    // The session added anchors; notify the JS side about it.
+    [self session:session notifyAnchorEvent:@"Added" anchors:anchors];
+}
+
+- (void)session:(ARSession *)session didUpdateAnchors:(nonnull NSArray<ARAnchor *> *)anchors
+{
+    // The session updated anchors; notify the JS side about it.
+    [self session:session notifyAnchorEvent:@"Updated" anchors:anchors];
+}
+
+- (void)session:(ARSession *)session didRemoveAnchors:(nonnull NSArray<ARAnchor *> *)anchors
+{
+    // The session removed anchors; notify the JS side about it.
+    [self session:session notifyAnchorEvent:@"Removed" anchors:anchors];
+}
+
+
+
+- (void)deviceOrientationDidChange:(NSNotification *)notification
+{
+//    [self->urlTextField setFrame:CGRectMake(URL_TEXTFIELD_HEIGHT, 0, self.view.frame.size.width - URL_TEXTFIELD_HEIGHT * 2, URL_TEXTFIELD_HEIGHT)];
+
+//    [self->refreshButton setFrame:CGRectMake(self.view.frame.size.width - URL_TEXTFIELD_HEIGHT, 0, URL_TEXTFIELD_HEIGHT, URL_TEXTFIELD_HEIGHT)];
+
+//    [self->wkWebView setFrame:CGRectMake(0, URL_TEXTFIELD_HEIGHT, self.view.frame.size.width,
+//                                         self.view.frame.size.height - URL_TEXTFIELD_HEIGHT)];
+
+//    [self.progressView setFrame:CGRectMake(0, URL_TEXTFIELD_HEIGHT - PROGRESSVIEW_HEIGHT, self.view.frame.size.width, PROGRESSVIEW_HEIGHT)];
+    
+    [self updateOrientation];
+    _updateWindowSize = true;
+}
+
+- (void)updateOrientation
+{
+    _deviceOrientation = [[UIDevice currentDevice] orientation];
+    switch (_deviceOrientation) {
+        case UIDeviceOrientationPortrait: {
+            _interfaceOrientation = UIInterfaceOrientationPortrait;
+        } break;
+
+        case UIDeviceOrientationPortraitUpsideDown: {
+            _interfaceOrientation = UIInterfaceOrientationPortraitUpsideDown;
+        } break;
+
+        case UIDeviceOrientationLandscapeLeft: {
+            _interfaceOrientation = UIInterfaceOrientationLandscapeRight;
+        } break;
+
+        case UIDeviceOrientationLandscapeRight: {
+            _interfaceOrientation = UIInterfaceOrientationLandscapeLeft;
+        } break;
+
+        default:
+            break;
+    }
+    //[self->_renderer setInterfaceOrientation:interfaceOrientation];
+}
+
+
 
 - (void)session:(ARSession *)session cameraDidChangeTrackingState:(ARCamera *)camera {
     if (self.onTrackingState) {

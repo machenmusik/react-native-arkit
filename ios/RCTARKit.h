@@ -31,6 +31,9 @@
 @property (nonatomic, copy) RCTBubblingEventBlock onPlaneUpdate;
 @property (nonatomic, copy) RCTBubblingEventBlock onPlaneRemoved;
 @property (nonatomic, copy) RCTBubblingEventBlock onTrackingState;
+@property (nonatomic, copy) RCTBubblingEventBlock onUpdateWindowSize;
+@property (nonatomic, copy) RCTBubblingEventBlock onSetData;
+@property (nonatomic, copy) RCTBubblingEventBlock onAnchorEvent;
 
 // origins for local frame and camera frame
 @property (nonatomic, strong) SCNNode *localOrigin;
@@ -39,7 +42,16 @@
 @property NSMutableDictionary *nodes; // nodes added to the scene
 @property NSMutableDictionary *planes; // plane detected
 
+//////////////////////////////
+// Imports from WebARonARKit.
+//////////////////////////////
 
+@property (nonatomic, assign) UIDeviceOrientation deviceOrientation;
+@property (nonatomic, assign) UIInterfaceOrientation interfaceOrientation;
+@property (nonatomic, assign) bool updateWindowSize;
+
+@property (nonatomic, assign) float near;
+@property (nonatomic, assign) float far;
 
 #pragma mark - Public Method
 - (void)pause;
