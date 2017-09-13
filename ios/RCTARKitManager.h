@@ -37,9 +37,4 @@
 - (void)addModel:(NSDictionary *)property;
 - (void)addImage:(NSDictionary *)property;
 
-- (void)moveNodeToReferenceFrame:(NSDictionary *)property;
-
-- (void)turnOnARBrush:(nullable NSDictionary *)property;
-- (void)turnOffARBrush;
-
 @end
