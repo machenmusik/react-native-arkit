@@ -10,8 +10,9 @@
 #import "Plane.h"
 @import CoreLocation;
 @import Vision;
-//#import "Inceptionv3.h"
-#import "SqueezeNet.h"
+#import "Inceptionv3.h"
+//#import "SqueezeNet.h"
+//#import "MobileNet.h"
 
 @interface RCTARKit () <ARSCNViewDelegate> {
     RCTPromiseResolveBlock _resolve;
@@ -291,8 +292,9 @@
     ARCamera* camera = currentFrame.camera;
     
     // make Vision call
-    //MLModel* model = [[[Inceptionv3 alloc] init] model];
-    MLModel* model = [[[SqueezeNet alloc] init] model];
+    MLModel* model = [[[Inceptionv3 alloc] init] model];
+    //MLModel* model = [[[SqueezeNet alloc] init] model];
+    //MLModel* model = [[[MobileNet alloc] init] model];
     VNCoreMLModel* vnmodel = [VNCoreMLModel modelForMLModel:model error:nil];
     VNCoreMLRequest* rq = [[VNCoreMLRequest alloc] initWithModel: vnmodel completionHandler: (VNRequestCompletionHandler) ^(VNRequest *request, NSError *error){
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -310,6 +312,8 @@
                       });
         });
     }];
+    
+    rq.imageCropAndScaleOption = VNImageCropAndScaleOptionCenterCrop;
     
     NSDictionary *d = [[NSDictionary alloc] init];
     NSArray *a = @[rq];

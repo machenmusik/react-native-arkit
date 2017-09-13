@@ -21,7 +21,7 @@
 		106DA32B1F443DB500B93D36 /* ARPlaneManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 106DA32A1F443DB500B93D36 /* ARPlaneManager.m */; };
 		10E553291F1391350059B7EC /* Plane.m in Sources */ = {isa = PBXBuildFile; fileRef = 10E553281F1391350059B7EC /* Plane.m */; };
 		10ED47A71F38BC01004DF043 /* DeviceMotion.m in Sources */ = {isa = PBXBuildFile; fileRef = 10ED47A61F38BC00004DF043 /* DeviceMotion.m */; };
-		450107011F68A4D900881099 /* SqueezeNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 450107001F68A4D100881099 /* SqueezeNet.mlmodel */; };
+		45EF72BD1F68D179003F9815 /* Inceptionv3.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 4506C7241F5128FB0002A744 /* Inceptionv3.mlmodel */; };
 		B3E7B58A1CC2AC0600A0062D /* RCTARKit.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RCTARKit.m */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +69,7 @@
 		134814201AA4EA6300B7C361 /* libRCTARKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTARKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		450107001F68A4D100881099 /* SqueezeNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SqueezeNet.mlmodel; sourceTree = "<group>"; };
 		4506C7241F5128FB0002A744 /* Inceptionv3.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Inceptionv3.mlmodel; sourceTree = "<group>"; };
+		45EF72B81F68CD82003F9815 /* MobileNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MobileNet.mlmodel; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* RCTARKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTARKit.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RCTARKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTARKit.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -124,6 +125,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				45EF72B81F68CD82003F9815 /* MobileNet.mlmodel */,
 				450107001F68A4D100881099 /* SqueezeNet.mlmodel */,
 				4506C7241F5128FB0002A744 /* Inceptionv3.mlmodel */,
 				106999E21F3EC2FB00032829 /* components */,
@@ -196,7 +198,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				106DA3251F443D9000B93D36 /* ARTorusManager.m in Sources */,
-				450107011F68A4D900881099 /* SqueezeNet.mlmodel in Sources */,
 				106DA32B1F443DB500B93D36 /* ARPlaneManager.m in Sources */,
 				106DA3161F443CF300B93D36 /* ARPyramidManager.m in Sources */,
 				106DA3191F443D1D00B93D36 /* ARSphereManager.m in Sources */,
@@ -209,6 +210,7 @@
 				106DA31C1F443D2A00B93D36 /* ARCylinderManager.m in Sources */,
 				106DA3221F443D8300B93D36 /* ARTubeManager.m in Sources */,
 				B3E7B58A1CC2AC0600A0062D /* RCTARKit.m in Sources */,
+				45EF72BD1F68D179003F9815 /* Inceptionv3.mlmodel in Sources */,
 				10062C831F127572009AE974 /* RCTARKitManager.m in Sources */,
 				10ED47A71F38BC01004DF043 /* DeviceMotion.m in Sources */,
 			);
