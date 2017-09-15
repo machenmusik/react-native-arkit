@@ -65,8 +65,8 @@ RCT_EXPORT_METHOD(getCurrentFramePointCloud:(RCTPromiseResolveBlock)resolve reje
     resolve([[ARKit sharedInstance] readCurrentFramePointCloud]);
 }
 
-RCT_EXPORT_METHOD(analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
-    [[ARKit sharedInstance] analyzeCurrentFrame:resolve reject:reject];
+RCT_EXPORT_METHOD(analyzeCurrentFrame:(NSString*)modelName resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    [[ARKit sharedInstance] analyzeCurrentFrame:modelName resolve:resolve reject:reject];
 }
 
 RCT_EXPORT_METHOD(barcodesCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {

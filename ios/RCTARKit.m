@@ -11,8 +11,11 @@
 @import CoreLocation;
 @import Vision;
 #import "Inceptionv3.h"
-//#import "SqueezeNet.h"
-//#import "MobileNet.h"
+#import "SqueezeNet.h"
+#import "MobileNet.h"
+#import "AgeNet.h"
+#import "GenderNet.h"
+#import "CNNEmotions.h"
 
 @interface RCTARKit () <ARSCNViewDelegate> {
     RCTPromiseResolveBlock _resolve;
@@ -21,6 +24,8 @@
 @property (nonatomic, strong) ARSession* session;
 @property (nonatomic, strong) ARWorldTrackingConfiguration *configuration;
 @property (nonatomic, strong) NSMutableDictionary *timestamps;
+@property (nonatomic, strong) MLModel *model;
+@property (nonatomic, strong) NSString *modelName;
 
 @end
 
@@ -288,14 +293,46 @@
              };
 }
 
+- (void)analyzeUsingModel:(NSString*)name {
+    if ([name isEqual:@""]) { name = @"inceptionv3"; }
+    
+    if ([name isEqual:self.modelName]) { return; }
+    self.modelName = [name lowercaseString];
+    
+    if ([self.modelName isEqual:@"mobilenet"]) {
+        self.model = [[[MobileNet alloc] init] model];
+    } else
+    if ([self.modelName isEqual:@"squeezenet"]) {
+        self.model = [[[SqueezeNet alloc] init] model];
+    } else
+    if ([self.modelName isEqual:@"age"]) {
+        self.model = [[[AgeNet alloc] init] model];
+    } else
+    if ([self.modelName isEqual:@"gender"]) {
+        self.model = [[[GenderNet alloc] init] model];
+    } else
+    if ([self.modelName isEqual:@"emotion"]) {
+        self.model = [[[CNNEmotions alloc] init] model];
+    } else
+    {
+        self.model = [[[Inceptionv3 alloc] init] model];
+    }
+}
+
+- (void)analyzeCurrentFrame:(NSString*)name resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    [self analyzeUsingModel:name];
+    [self analyzeCurrentFrame:resolve reject:reject withModel:self.model];
+}
+
 - (void)analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+    [self analyzeCurrentFrame:@"" resolve:resolve reject:reject];
+}
+
+- (void)analyzeCurrentFrame:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject withModel:(MLModel*)model {
     ARFrame* currentFrame = self.session.currentFrame;
-    ARCamera* camera = currentFrame.camera;
+    //ARCamera* camera = currentFrame.camera;
     
     // make Vision call
-    MLModel* model = [[[Inceptionv3 alloc] init] model];
-    //MLModel* model = [[[SqueezeNet alloc] init] model];
-    //MLModel* model = [[[MobileNet alloc] init] model];
     VNCoreMLModel* vnmodel = [VNCoreMLModel modelForMLModel:model error:nil];
     VNCoreMLRequest* rq = [[VNCoreMLRequest alloc] initWithModel: vnmodel completionHandler: (VNRequestCompletionHandler) ^(VNRequest *request, NSError *error){
         dispatch_async(dispatch_get_main_queue(), ^{
